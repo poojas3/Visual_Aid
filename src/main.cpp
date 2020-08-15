@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include <NewPing.h>
-#include <FirebaseESP32.h>
+//#include <NewPing.h>
+//#include <FirebaseESP32.h>
 #include "esp_camera.h"
-
-#define FIREBASE_HOST "esp32-flutter-project.firebaseio.com"
-#define FIREBASE_AUTH "sMuaV86cJhMXpk3htAaXfk3xkveaZ6CcqrL9tuW3"
-
-
+//#include "firebaseobject.h"
 
 //Define firebase Data object
-FirebaseData firebaseData;
+//FirebaseData firebaseData;
 
 // Select camera model
 
@@ -37,19 +33,19 @@ FirebaseData firebaseData;
 
 //all camera pins added here
 
-#define TRIGGER_PIN 12 //Ultrasonic Sensor HC-SR04
-#define ECHO_PIN 13
-#define MAX_DISTANCE 400
-#define Buzzer 2
+//#define TRIGGER_PIN 12 //Ultrasonic Sensor HC-SR04
+//#define ECHO_PIN 13
+//#define MAX_DISTANCE 400
+//#define Buzzer 2
 
 // NewPing setup of pins and maximum distance
-NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); 
+//NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); 
 
-String path="/ESP32_Device";
 
-int freq=2000;
-int channel=0;
-uint resolution1=8;
+
+//int freq=2000;
+//int channel=0;
+//uint resolution1=8;
 
 
 const char* ssid = "SHAW-BDF72C";
@@ -64,8 +60,8 @@ void setup() {
   Serial.setDebugOutput(true);
   Serial.println("Hello...");
   
-  ledcSetup(channel,freq,resolution1);
-  ledcAttachPin(2,0);
+  //ledcSetup(channel,freq,resolution1);
+  //ledcAttachPin(2,0);
   
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -142,23 +138,13 @@ void setup() {
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
   
-  iniFirebase();
+  //iniFirebase();
 }
 
-
-void iniFirebase()
-{
-  Firebase.begin(FIREBASE_HOST,FIREBASE_AUTH);
-  Firebase.reconnectWiFi(true);
-
-  //set database read timeout to 1 minute
-  Firebase.setReadTimeout(firebaseData,1000*10);
-  Firebase.setwriteSizeLimit(firebaseData,"tiny");
-}
 
 void loop() {
   //put your main code here, to run repeatedly:
-  
+  /*
   delay(5000);
    double distance = sonar.ping_cm();
    if(distance > 0){
@@ -176,5 +162,5 @@ void loop() {
   }
   else {
      ledcWriteTone(0,0);
-  }
+  }*/
 }

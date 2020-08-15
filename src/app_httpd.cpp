@@ -17,10 +17,18 @@
 #include "img_converters.h"
 #include "camera_index.h"
 #include "Arduino.h"
-
+#include <FirebaseESP32.h>
+//#include "firebaseobject.h"
 #include "fb_gfx.h"
 #include "fd_forward.h"
 #include "fr_forward.h"
+
+
+#define FIREBASE_HOST "esp32-flutter-project.firebaseio.com"
+#define FIREBASE_AUTH "sMuaV86cJhMXpk3htAaXfk3xkveaZ6CcqrL9tuW3"
+FirebaseData firebaseData;
+//String path="/ESP32_Device";
+void iniFirebase();
 
 #define ENROLL_CONFIRM_TIMES 5
 #define FACE_ID_SAVE_NUMBER 7
@@ -198,6 +206,13 @@ static int run_face_recognition(dl_matrix3du_t *image_matrix, box_array_t *net_b
                 stringtoprint.toCharArray(chararraytoprint, 32);
                 //rgb_printf(image_matrix, FACE_COLOR_GREEN, "Hello Subject %u", matched_id);
                 rgb_printf(image_matrix, FACE_COLOR_GREEN,chararraytoprint);
+                
+                Serial.printf("About to send message to firebase for %s",chararraytoprint);
+                delay(5000);
+                double distance=10;
+                Firebase.setDouble(firebaseData,"/ESP32_Device/Distance/Data",distance);
+                delay(3000);
+                Firebase.setString(firebaseData,"/ESP32_Device/FaceRecognized/Name","Pooja");
                 stringtoprint="";
             } else {
                 Serial.println("No Match Found");
@@ -671,4 +686,17 @@ void startCameraServer(){
     if (httpd_start(&stream_httpd, &config) == ESP_OK) {
         httpd_register_uri_handler(stream_httpd, &stream_uri);
     }
+    iniFirebase();
+}
+
+
+void iniFirebase()
+{
+  Firebase.begin(FIREBASE_HOST,FIREBASE_AUTH);
+  //Firebase.reconnectWiFi(true);
+
+  //set database read timeout to 1 minute
+  Firebase.setReadTimeout(firebaseData,1000*60);
+  Firebase.setwriteSizeLimit(firebaseData,"small");
+  Serial.printf("Firebase Initialized...");
 }
