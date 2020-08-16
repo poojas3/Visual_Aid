@@ -208,11 +208,10 @@ static int run_face_recognition(dl_matrix3du_t *image_matrix, box_array_t *net_b
                 rgb_printf(image_matrix, FACE_COLOR_GREEN,chararraytoprint);
                 
                 Serial.printf("About to send message to firebase for %s",chararraytoprint);
-                delay(5000);
-                double distance=10;
-                Firebase.setDouble(firebaseData,"/ESP32_Device/Distance/Data",distance);
-                delay(3000);
-                Firebase.setString(firebaseData,"/ESP32_Device/FaceRecognized/Name","Pooja");
+                delay(1000);
+
+                Firebase.setString(firebaseData,"/ESP32_Device/MatchPerson/Data",face_names[matched_id]);
+               
                 stringtoprint="";
             } else {
                 Serial.println("No Match Found");
@@ -617,6 +616,7 @@ static esp_err_t index_handler(httpd_req_t *req){
 
 void startCameraServer(){
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    config.stack_size=8192;
 
     httpd_uri_t index_uri = {
         .uri       = "/",
@@ -693,8 +693,8 @@ void startCameraServer(){
 void iniFirebase()
 {
   Firebase.begin(FIREBASE_HOST,FIREBASE_AUTH);
-  //Firebase.reconnectWiFi(true);
-
+  Firebase.reconnectWiFi(true);
+  Firebase.setMaxRetry(firebaseData,10);
   //set database read timeout to 1 minute
   Firebase.setReadTimeout(firebaseData,1000*60);
   Firebase.setwriteSizeLimit(firebaseData,"small");

@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include <WiFi.h>
 //#include <NewPing.h>
-//#include <FirebaseESP32.h>
+#include <FirebaseESP32.h>
 #include "esp_camera.h"
-//#include "firebaseobject.h"
+
 
 //Define firebase Data object
 //FirebaseData firebaseData;
