@@ -100,7 +100,13 @@ void setup() {
 #endif
 
   // camera init
-  esp_err_t err = esp_camera_init(&config);
+  int retrycount=0;
+  esp_err_t err;
+  do{
+    err = esp_camera_init(&config);
+    retrycount++;
+  }while(err != ESP_OK && retrycount<3);
+
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;

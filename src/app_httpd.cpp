@@ -30,6 +30,8 @@ FirebaseData firebaseData;
 //String path="/ESP32_Device";
 void iniFirebase();
 
+
+
 #define ENROLL_CONFIRM_TIMES 5
 #define FACE_ID_SAVE_NUMBER 7
 
@@ -190,6 +192,8 @@ static int run_face_recognition(dl_matrix3du_t *image_matrix, box_array_t *net_b
                 Serial.printf("Enrolling Face ID: %d\n", id_list.tail);
             }
             face_names[id_list.tail]=person_name;
+            face_names[id_list.tail].replace("%20"," ");
+            strcpy(person_name, face_names[id_list.tail].c_str());
             Serial.print(person_name);
             Serial.printf("Enrolling Face ID: %d sample %d\n", id_list.tail, ENROLL_CONFIRM_TIMES - left_sample_face);
             rgb_printf(image_matrix, FACE_COLOR_CYAN, person_name);
