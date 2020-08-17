@@ -65,6 +65,9 @@ static face_id_list id_list = {0};
 String face_names[10]={};
 static char chararraytoprint[32]={0,};
 static String stringtoprint="";
+TaskHandle_t StreamTask;
+httpd_req_t *req;
+esp_err_t res = ESP_OK;
 
 static ra_filter_t * ra_filter_init(ra_filter_t * filter, size_t sample_size){
     memset(filter, 0, sizeof(ra_filter_t));
@@ -313,9 +316,11 @@ static esp_err_t capture_handler(httpd_req_t *req){
     return res;
 }
 
-static esp_err_t stream_handler(httpd_req_t *req){
+ 
+    //static esp_err_t 
+    static void mystream_handler(void * pvParameters){
     camera_fb_t * fb = NULL;
-    esp_err_t res = ESP_OK;
+    res = ESP_OK;
     size_t _jpg_buf_len = 0;
     uint8_t * _jpg_buf = NULL;
     char * part_buf[64];
@@ -335,12 +340,15 @@ static esp_err_t stream_handler(httpd_req_t *req){
 
     res = httpd_resp_set_type(req, _STREAM_CONTENT_TYPE);
     if(res != ESP_OK){
-        return res;
+        //return res;
     }
 
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
 
     while(true){
+        Serial.print("Stream code started in ");
+        Serial.print(xPortGetCoreID());
+
         detected = false;
         face_id = 0;
         fb = esp_camera_fb_get();
@@ -457,9 +465,23 @@ static esp_err_t stream_handler(httpd_req_t *req){
     }
 
     last_frame = 0;
-    return res;
+    //return res;
+    vTaskDelete( NULL );
 }
 
+static esp_err_t stream_handler(httpd_req_t *rreq){
+    req=rreq;
+    xTaskCreatePinnedToCore(
+                    mystream_handler,   /* Task function. */
+                    "StreamTask",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    1,           /* priority of the task */
+                    &StreamTask,      /* Task handle to keep track of created task */
+                    1);          /* pin task to core 0 */                  
+  delay(500);
+return res;
+}
 static esp_err_t cmd_handler(httpd_req_t *req){
     char*  buf;
     size_t buf_len;
@@ -600,7 +622,7 @@ static esp_err_t index_handler(httpd_req_t *req){
     return httpd_resp_send(req, (const char *)index_ov2640_html_gz, index_ov2640_html_gz_len);
 }
 
-void startCameraServer(){
+void startCameraServer(void * pvParameters){
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
     httpd_uri_t index_uri = {
@@ -671,4 +693,5 @@ void startCameraServer(){
     if (httpd_start(&stream_httpd, &config) == ESP_OK) {
         httpd_register_uri_handler(stream_httpd, &stream_uri);
     }
+    vTaskDelete( NULL );
 }

@@ -55,8 +55,12 @@ uint resolution1=8;
 const char* ssid = "SHAW-BDF72C";
 const char* password = "Saavi2019";
 
-void startCameraServer();
+void startCameraServer(void * pvParameters);
+void UltraSensor(void * pvParameters);
 void iniFirebase();
+
+TaskHandle_t Task1;
+TaskHandle_t Task2;
 
 void setup() {
   
@@ -104,7 +108,13 @@ void setup() {
 #endif
 
   // camera init
-  esp_err_t err = esp_camera_init(&config);
+  int retrycount=0;
+  esp_err_t err;
+  do{
+    err = esp_camera_init(&config);
+    retrycount++;
+  }while(err != ESP_OK && retrycount<3);
+
   if (err != ESP_OK) {
     Serial.printf("Camera init failed with error 0x%x", err);
     return;
@@ -136,13 +146,34 @@ void setup() {
   Serial.println("");
   Serial.println("WiFi connected");
   
-  startCameraServer();
-
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
   
   iniFirebase();
+
+xTaskCreatePinnedToCore(
+                    startCameraServer,   /* Task function. */
+                    "CameraTask",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    1,           /* priority of the task */
+                    &Task1,      /* Task handle to keep track of created task */
+                    1);          /* pin task to core 0 */                  
+  delay(500);
+
+
+  xTaskCreatePinnedToCore(
+                    UltraSensor,   /* Task function. */
+                    "UltraSonicTask",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    1,           /* priority of the task */
+                    &Task2,      /* Task handle to keep track of created task */
+                    0);          /* pin task to core 0 */                  
+  delay(500);
+
+  //startCameraServer();
 }
 
 
@@ -159,6 +190,15 @@ void iniFirebase()
 void loop() {
   //put your main code here, to run repeatedly:
   
+  
+}
+
+
+void UltraSensor(void * pvParameters){
+  
+  while(true){
+    Serial.print("Ultrasonic code started in ");
+    Serial.print(xPortGetCoreID());
   delay(5000);
    double distance = sonar.ping_cm();
    if(distance > 0){
@@ -176,5 +216,6 @@ void loop() {
   }
   else {
      ledcWriteTone(0,0);
+  }
   }
 }
