@@ -12,10 +12,10 @@
 FirebaseData firebaseData;
 
 
-#define TRIGGER_PIN 12 //Ultrasonic Sensor HC-SR04
-#define ECHO_PIN 13
+#define TRIGGER_PIN 4//Ultrasonic Sensor HC-SR04
+#define ECHO_PIN 5
 #define MAX_DISTANCE 400
-#define Buzzer 2
+#define Buzzer 33
 
 // NewPing setup of pins and maximum distance
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); 
@@ -40,7 +40,7 @@ void setup() {
   Serial.println("Hello...");
   
   ledcSetup(channel,freq,resolution1);
-  ledcAttachPin(2,0);
+  ledcAttachPin(33,0);
   
 
 
@@ -80,23 +80,8 @@ void loop() {
    Firebase.setDouble(firebaseData,path+"/Distance/Data",distance);
 
  //ledcWrite(channel, 125);
-    if (distance > 0 && distance <100){
+    if (distance > 0 && distance <400){
     ledcWrite(0, 125);
-    ledcWriteTone(0,2000);
-    delay(1000);
-  }
-  else if (distance >100 && distance <200){
-    //ledcWrite(0, 125);
-    ledcWriteTone(0,2500);
-    delay(1000);
-  }
-  else if (distance >200 && distance <300){
-    //ledcWrite(0, 125);
-    ledcWriteTone(0,3000);
-    delay(1000);
-  }
-  else if (distance >300 && distance <400){
-    //ledcWrite(0, 125);
     ledcWriteTone(0,5000);
     delay(1000);
   }
