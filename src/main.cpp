@@ -149,24 +149,5 @@ void setup() {
 
 
 void loop() {
-  //put your main code here, to run repeatedly:
-  /*
-  delay(5000);
-   double distance = sonar.ping_cm();
-   if(distance > 0){
-   Serial.print(distance);
-   Serial.println("cm");
-   }
-
-   Firebase.setDouble(firebaseData,path+"/Distance/Data",distance);
-
- //ledcWrite(channel, 125);
-    if (distance > 0 && distance <400){
-    ledcWrite(0, 125);
-    ledcWriteTone(0,5000);
-    delay(1000);
-  }
-  else {
-     ledcWriteTone(0,0);
-  }*/
+  
 }
