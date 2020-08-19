@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <NewPing.h>
 #include <FirebaseESP32.h>
+#include <TaskScheduler.h>
 
 
 #define FIREBASE_HOST "esp32-flutter-project.firebaseio.com"
@@ -10,6 +11,20 @@
 
 //Define firebase Data object
 FirebaseData firebaseData;
+
+//send distance data to firebase   
+void senddistance();
+Task task1_distance(1000, TASK_FOREVER, &senddistance);
+    
+Scheduler runner; 
+void initscheduler()
+{
+ runner.init();
+ 
+runner.addTask(task1_distance);
+task1_distance.enable();
+
+}
 
 
 #define TRIGGER_PIN 4//Ultrasonic Sensor HC-SR04
@@ -54,6 +69,7 @@ void setup() {
   Serial.println("WiFi connected");
   
   iniFirebase();
+  initscheduler();
 }
 
 
@@ -69,9 +85,13 @@ void iniFirebase()
 
 void loop() {
   //put your main code here, to run repeatedly:
-  
-  delay(1000);
-   double distance = sonar.ping_cm();
+  runner.execute();
+   
+}
+
+void senddistance()
+{
+  double distance = sonar.ping_cm();
    if(distance > 0){
    Serial.print(distance);
    Serial.println("cm");
@@ -81,9 +101,7 @@ void loop() {
 
  ledcWrite(channel, 125);
     if (distance > 0 && distance <400){
-    //ledcWrite(0, 125);
-    ledcWriteTone(0,5000);
-    delay(1000);
+    ledcWriteTone(0,7000);
   }
   else {
      ledcWriteTone(0,0);
